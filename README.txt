@@ -114,10 +114,19 @@ WHAT I ACTUALLY KNOW, AND WHAT I DON'T
       the engine picking a big number and a project setting stamping it down to
       a Quest era value. That bit isn't up for debate.
 
-  TESTED ON ONE MACHINE
-      An RTX 5090. Stutters went from 30 down to 2 in comparable windows, so
-      roughly 1.1 a minute down to 0.1. That's 90% off, or about 47% once you
-      roughly account for the second session being in a quieter area.
+  MEASURED, ON ONE MACHINE
+      An RTX 5090, two sessions of almost exactly the same length:
+
+                                  Before      After
+          session length          28.9 min    29.0 min
+          stutters                33          5
+          ignoring loading spike  30          2
+          per minute, same        1.13        0.08
+          how busy the area was   2.80/sec    3.13/sec
+
+      That last row matters. The "after" session was in a BUSIER area than the
+      "before" one, so if anything it should have looked worse. It still came
+      out 93% better once you ignore the loading spike at the start.
 
   NO IDEA
       How much it helps you. One GPU has been tested. The benefit scales with

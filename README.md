@@ -1,8 +1,46 @@
 # Orion Drift PC Spectator Stutter Fix
 
+[![Release](https://img.shields.io/github/v/release/chase-ah/orion-drift-stutter-fix?color=blue)](../../releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/chase-ah/orion-drift-stutter-fix/total)](../../releases/latest)
+[![License](https://img.shields.io/github/license/chase-ah/orion-drift-stutter-fix)](LICENSE)
+
 Unofficial fix for the constant hitching in the Orion Drift PC spectator client.
 
 **[Download it here](../../releases/latest)**, extract it, double click `Fix Orion Drift Stutter.bat`.
+
+On the machine it was built on, stutters went from **33 down to 5** over a matched 29 minute
+session. Ignoring the loading spike at the start, **30 down to 2**.
+
+## What it looks like
+
+```
+  ORION DRIFT SPECTATOR - STUTTER FIX  v1.0.0
+  Unofficial community tool. Edits one user config file. No game files touched.
+
+  Your system
+  -----------
+    graphics card             NVIDIA GeForce RTX 5090
+    video memory              32187 MB
+    texture pool now          1500 MB
+
+  Your last session
+  -----------------
+    session length            28.9 min
+    stutters detected         33  (1.14 per minute)
+    worst freeze              419 ms
+    (this counts only stutters the log happens to catch - it is a floor, not a total)
+
+  Recommendation
+  --------------
+    texture pool now          1500 MB
+    would change to           8192 MB
+    that is                   5.5x bigger
+
+  Apply this fix? (Y/N)
+```
+
+It tells you what it found and what it wants to do, then waits. Nothing changes until you
+press Y.
 
 ## What's actually wrong
 
@@ -105,9 +143,19 @@ Being straight about this instead of overselling it:
 the engine picking a big number and a project setting stamping it down to a Quest era value.
 That bit isn't up for debate.
 
-**Tested on one machine.** An RTX 5090. Stutters went from 30 down to 2 in comparable
-windows, so roughly 1.1 a minute down to 0.1. That's 90% off, or about 47% once you roughly
-account for the second session being in a quieter area.
+**Measured, on one machine.** An RTX 5090, two sessions of almost exactly the same length:
+
+| | Before | After |
+|---|---|---|
+| Session length | 28.9 min | 29.0 min |
+| Stutters | 33 | 5 |
+| Ignoring the loading spike | 30 | 2 |
+| Per minute, same | 1.13 | 0.08 |
+| How busy the area was | 2.80 voice events/sec | 3.13 voice events/sec |
+
+That last row matters. The "after" session was in a *busier* area than the "before" one, so
+if anything it should have looked worse. It still came out 93% better once you ignore the
+loading spike at the start.
 
 **No idea.** How much it helps *you*. One GPU has been tested. The benefit scales with how
 much spare memory you have, so a 6 GB card should expect a lot less than a 24 GB one, maybe
