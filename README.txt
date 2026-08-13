@@ -1,59 +1,58 @@
 ===============================================================================
-  ORION DRIFT PC SPECTATOR - STUTTER FIX
+  ORION DRIFT PC SPECTATOR STUTTER FIX
   Unofficial community tool
 ===============================================================================
 
-WHAT IT FIXES
+WHAT'S ACTUALLY WRONG
 
-  The Orion Drift PC spectator client ships with its texture streaming pool
-  pinned to 1500 MB, by a project setting that overrides the engine's own
-  VRAM-based sizing. That number is carried over from the Quest build.
+  The PC build caps its texture streaming pool at 1500 MB. That number comes
+  from the Quest version, and on PC it overrides the engine's own sizing, which
+  is based on how much VRAM you actually have.
 
-  On a PC graphics card with memory to spare, a pool that small means textures
-  are constantly thrown away and reloaded as the camera moves. You feel it as
-  hitching when you fly into new areas.
+  So if your card has memory to spare, it just sits there unused while the game
+  throws textures away and reloads them over and over. That's what you're
+  feeling when the camera moves somewhere new and it stutters.
 
-  Proof from the game's own log, two lines apart:
+  Here's the game's own log saying it, two lines apart:
 
       LogRHI: Texture pool is 19793 MB (70% of 28277 MB)
       LogContentStreaming: Texture pool size now 1500 MB
 
-  The engine sized the pool at 19.8 GB, then the setting forced it to 1500 MB.
+  The engine worked out 19.8 GB. Then the setting forced it down to 1500.
 
-  This tool reads YOUR log to find YOUR card's memory, and sizes the pool as a
-  fraction of it. It never hardcodes a number, and it never lowers your pool.
+  This tool reads YOUR log, finds YOUR card's VRAM, and sets the pool based on
+  that. No hardcoded numbers, and it'll never make your pool smaller.
 
 
 -------------------------------------------------------------------------------
-HOW TO USE
+HOW TO USE IT
 -------------------------------------------------------------------------------
 
-  1. Run the Orion Drift spectator client at least once, then close it.
-     (The tool reads the log it produces. Without it there is nothing to
-     detect your graphics card from.)
+  1. Run the Orion Drift spectator client once, then close it.
+     The tool needs the log it makes to work out what GPU you have.
 
-  2. EXTRACT this zip to a real folder. Do not run it from inside the zip
-     viewer - the .bat will not find the .ps1.
+  2. EXTRACT this zip to a real folder. If you run it from inside the zip
+     window the .bat won't find the .ps1.
 
-  3. Double-click:  Fix Orion Drift Stutter.bat
+  3. Double click:  Fix Orion Drift Stutter.bat
 
-  4. Read what it tells you. It shows your card, your current pool size, your
-     last session's stutter count, and what it would change. Nothing has been
-     changed yet at this point.
+  4. Read what it tells you. It shows your card, your current pool size, and
+     how many stutters it found in your last session. Nothing has changed at
+     this point.
 
-  5. Type Y and press Enter to apply. Type N to cancel.
+  5. Press Y to apply, or N to back out.
 
-  6. Launch Orion Drift normally. The fix is active from then on - you do NOT
-     need to run this before every session.
+  6. Launch the game normally. It stays applied, you don't need to run this
+     before every session.
 
-  To remove it, double-click:  Undo.bat
+  To get rid of it, double click:  Undo.bat
 
 
 -------------------------------------------------------------------------------
 WHAT IT CHANGES
 -------------------------------------------------------------------------------
 
-  Exactly one setting, in one file that belongs to you:
+  One setting, in one file that belongs to you:
 
       %LOCALAPPDATA%\A2\Saved\Config\Windows\Engine.ini
 
@@ -64,28 +63,24 @@ WHAT IT CHANGES
       r.Streaming.PoolSize=<sized for your card>
       ; ===== END ORION-STUTTER-FIX =====
 
-  It does NOT touch any game file. Your Meta Horizon install is untouched and
-  unmodified, so there is nothing for a file check to object to and nothing to
-  repair-download.
+  No game files get touched. Your Meta Horizon install stays exactly as it was,
+  so there's nothing for a file check to complain about and nothing to
+  redownload. Your old Engine.ini gets backed up first, into the "backups"
+  folder.
 
-  Your original Engine.ini is copied to the "backups" folder before any change.
+  It sets that file to read only afterwards. That isn't paranoia, it's
+  necessary: the game rewrites Engine.ini when it closes and deletes any
+  section it doesn't recognise, so without it the fix would quietly vanish.
+  Undo.bat clears the flag along with everything else.
 
-  The file is set read-only afterwards. This is deliberate and load-bearing:
-  the game rewrites Engine.ini when it closes and deletes sections it does not
-  recognise, which would silently undo the fix. Undo.bat clears the read-only
-  flag along with everything else.
-
-  Side effect of that: while the fix is installed, the game cannot save a small
-  netcode value (CachedClientID) to that file. This appears to be harmless. If
-  you ever hit connection oddities, run Undo.bat and see if they go away.
+  Side effect: while it's installed, the game can't save a small netcode value
+  (CachedClientID) to that file. Looks harmless. If you start getting weird
+  connection issues, run Undo.bat and see if they stop.
 
 
 -------------------------------------------------------------------------------
 WHAT SIZE YOU GET
 -------------------------------------------------------------------------------
-
-  Pool = 37.5% of your card's dedicated video memory, capped at 8192 MB, and
-  only offered if it is at least 25% bigger than what you have now.
 
       Your VRAM     Default      You get
       ---------     -------      -------
@@ -97,47 +92,48 @@ WHAT SIZE YOU GET
       16 GB         1500 MB      6144 MB   (4.1x)
       24 GB+        1500 MB      8192 MB   (5.5x)
 
-  Small cards are told to leave it alone on purpose. A 1500 MB pool on a 4 GB
-  card is not the misconfiguration it is on a 24 GB card - it is roughly the
-  right size already, and inflating it would take memory away from other things
-  and could make performance WORSE. This tool only helps cards with memory to
-  spare.
+  It works out to 37.5% of your VRAM, capped at 8192 MB, and it only bothers
+  offering the change if it's at least 25% bigger than what you've already got.
 
-  The cap is 8192 MB because that is the largest value anyone has actually
-  measured. It is not extrapolated.
+  Small cards get left alone on purpose. 1500 MB on a 4 GB card is about right
+  already, and inflating it would just steal memory from other things and could
+  make it worse. This only helps cards with memory going spare.
 
-
--------------------------------------------------------------------------------
-WHAT TO EXPECT - AND WHAT WE ACTUALLY KNOW
--------------------------------------------------------------------------------
-
-  Being straight with you about the evidence:
-
-  SOLID:   The setting is objectively wrong on high-VRAM PCs. The log shows the
-           engine computing a large pool and a project setting stomping it down
-           to a Quest-era value. That is not a matter of opinion.
-
-  MEASURED ON ONE MACHINE: On an RTX 5090, stutters in comparable steady-state
-           windows dropped from 30 to 2 - about 1.1/min down to 0.1/min. That
-           is a 90% drop raw, or roughly 47% after crudely correcting for the
-           fact that the second session was in a quieter area.
-
-  NOT KNOWN: How much this helps YOU. It has been tested on one GPU. The
-           benefit scales with how much spare memory your card has, so a 6 GB
-           card should expect a much smaller improvement than a 24 GB one -
-           possibly none.
-
-  This tool also shows you your own stutter numbers before and after, so you can
-  judge for yourself rather than taking anyone's word for it. Run it, note the
-  numbers, apply, play a session, run it again.
-
-  One catch when comparing: play a similar length of time in a similarly busy
-  area. A short session is dominated by loading hitches and will look worse than
-  it is. Fifteen minutes or more gives a fair reading.
+  The 8192 cap is there because that's the biggest value anyone has actually
+  tested. I'm not guessing past that.
 
 
 -------------------------------------------------------------------------------
-TROUBLESHOOTING
+WHAT I ACTUALLY KNOW, AND WHAT I DON'T
+-------------------------------------------------------------------------------
+
+  Being straight about this instead of overselling it.
+
+  DEFINITELY TRUE
+      The setting is wrong on PCs with a decent amount of VRAM. The log shows
+      the engine picking a big number and a project setting stamping it down to
+      a Quest era value. That bit isn't up for debate.
+
+  TESTED ON ONE MACHINE
+      An RTX 5090. Stutters went from 30 down to 2 in comparable windows, so
+      roughly 1.1 a minute down to 0.1. That's 90% off, or about 47% once you
+      roughly account for the second session being in a quieter area.
+
+  NO IDEA
+      How much it helps you. One GPU has been tested. The benefit scales with
+      how much spare memory you have, so a 6 GB card should expect a lot less
+      than a 24 GB one, maybe nothing at all.
+
+  The tool shows you your own stutter numbers so you don't have to take my word
+  for any of it. Run it, note what it says, apply it, play, run it again.
+
+  One thing to watch when you compare: play a similar amount of time in a
+  similarly busy area. A short session is mostly loading hitches and will look
+  worse than it really is. 15 minutes or more gives you a fair read.
+
+
+-------------------------------------------------------------------------------
+IF SOMETHING GOES WRONG
 -------------------------------------------------------------------------------
 
   "No Orion Drift log found"
@@ -146,32 +142,37 @@ TROUBLESHOOTING
   "Could not read your GPU from the log"
       Run the game once more so it writes a fresh startup log, then retry.
 
-  The window flashes and vanishes
-      You are running it from inside the zip. Extract the folder first.
+  The window flashes up and disappears
+      You're running it from inside the zip. Extract the folder first.
 
-  Windows SmartScreen or antivirus complains
-      This is a plain-text PowerShell script with a .bat that runs it - nothing
-      is compiled or packed. Open both files in Notepad and read them; that is
+  Antivirus or SmartScreen complains
+      It's a plain text PowerShell script with a .bat that runs it. Nothing is
+      compiled or packed. Open both in Notepad and read them, that's exactly
       why they ship as readable source instead of an .exe.
 
-  It says the pool is right but stutter came back
+  Windows says the files are blocked
+      They came off the internet. Right click each one, Properties, tick
+      Unblock.
+
+  The stutter came back
       Run the tool again. A game update or a Meta Horizon repair can clear the
-      read-only flag and let the game strip the setting.
+      read only flag and let the game strip the setting back out.
 
   I want it gone
-      Undo.bat. It removes the block, clears the read-only flag, and leaves the
+      Undo.bat. It removes the block, clears the read only flag, and leaves the
       rest of your config exactly as it was.
 
 
 -------------------------------------------------------------------------------
-NOTES
+IS THIS ALLOWED
 -------------------------------------------------------------------------------
 
-  This is not made by, endorsed by, or supported by Another Axiom. It changes a
-  user configuration file that the engine already supports changing. It is not a
-  mod, it does not alter game code or content, and it gives no gameplay
-  advantage - it is a graphics memory setting.
+  Nothing to do with Another Axiom. Not made by them, not endorsed by them, not
+  supported by them.
 
-  The underlying issue is a shipping default on the PC build. The proper fix is
-  for it to be corrected upstream, which would help every player rather than
-  only the ones who run tools from the internet.
+  All it does is change a config file that the engine already reads. It isn't a
+  mod, it doesn't touch game code or content, and it doesn't give you any
+  advantage in game. It's a graphics memory setting.
+
+  The real fix is for this to get sorted out in the game itself, which would
+  help everyone instead of just the people willing to run something off GitHub.
